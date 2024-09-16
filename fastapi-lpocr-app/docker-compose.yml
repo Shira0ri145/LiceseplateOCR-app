@@ -1,0 +1,7 @@
+version: '3.8'
+
+services:
+  fastapi-server:
+    build: . #docker location
+    ports:
+      - "8000:8000" #mapport

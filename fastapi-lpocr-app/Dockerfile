@@ -1,17 +1,18 @@
-# Use Python 3.12.5
+# ใช้ภาพพื้นฐานของ Python
 FROM python:3.12.5
 
-# Set the working directory in the container
+# ตั้งค่า directory ที่จะใช้ใน container
 WORKDIR /code
 
-# Copy the requirements file into the container
+# คัดลอกไฟล์ requirements.txt และติดตั้ง dependencies
 COPY ./requirements.txt /code/requirements.txt
+RUN pip install --no-cache-dir -r /code/requirements.txt
 
-# Install the dependencies
-RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
-
-# Copy the application code into the container
+# คัดลอกโค้ดของแอพพลิเคชันไปยัง container
 COPY ./app /code/app
 
-# Command to run the FastAPI application
-CMD ["fastapi", "run", "app/main.py", "--port", "80"]
+# เปิดพอร์ตที่ Uvicorn จะฟัง
+EXPOSE 8000
+
+# คำสั่งในการรันแอพพลิเคชันในโหมดพัฒนา
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
