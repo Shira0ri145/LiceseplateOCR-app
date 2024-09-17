@@ -1,0 +1,101 @@
+/* Styling for the login wrapper */
+.login-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: #211f1f; /* Updated background color */
+}
+
+.login-card {
+    background-color: #1c1c1c; /* Dark background for the card */
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    padding: 2rem;
+    max-width: 360px;
+    width: 100%;
+    color: #fff; /* Text color to contrast with dark background */
+}
+
+.login-header {
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+    color: #ffcac9; /* Color inspired by navbar hover effect */
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+}
+
+.login-form-group {
+    margin-bottom: 1.2rem;
+}
+
+.login-form-label {
+    display: block;
+    font-size: 1rem;
+    color: #fff; /* Light color for labels */
+    margin-bottom: 0.5rem;
+}
+
+.login-form-input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #737dfe; /* Border color matching navbar hover effect */
+    border-radius: 8px;
+    font-size: 1rem;
+    box-sizing: border-box;
+    background-color: #2c2c2c; /* Dark background for input fields */
+    color: #fff; /* Text color in input fields */
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.login-form-input::placeholder {
+    color: #ccc; /* Placeholder text color */
+}
+
+.login-form-input:focus {
+    border-color: #ffcac9; /* Border color on focus */
+    box-shadow: 0 0 4px rgba(255, 202, 201, 0.5); /* Shadow color matching focus border */
+    outline: none;
+}
+
+.password-container {
+    position: relative;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #737dfe; /* Color for the eye icon */
+    font-size: 1.2rem;
+}
+
+.login-submit-btn {
+    width: 100%;
+    padding: 0.75rem;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(45deg, #737dfe, #ffcac9); /* Gradient background matching navbar hover effect */
+    color: #fff;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.login-submit-btn:hover {
+    background: linear-gradient(45deg, #ffcac9, #737dfe); /* Gradient reverse for hover effect */
+    transform: scale(1.03);
+}
+
+.login-submit-btn:active {
+    background: linear-gradient(45deg, #737dfe, #ffcac9); /* Gradient reverse for active effect */
+    transform: scale(0.98);
+}
