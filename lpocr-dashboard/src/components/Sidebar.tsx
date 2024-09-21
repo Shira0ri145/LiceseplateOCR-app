@@ -1,17 +1,17 @@
-import { BarChart, Users, FileText, Settings } from 'lucide-react'
+import { BarChart, Users, FileText, CarFront } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 interface SidebarProps {
   isSidebarOpen: boolean;
 }
 
-
-export default function Sidebar({ isSidebarOpen } :SidebarProps) {
+export default function Sidebar({ isSidebarOpen }: SidebarProps) {
   const sidebarItems = [
-    { icon: BarChart, label: 'Dashboard' },
-    { icon: Users, label: 'Users' },
-    { icon: FileText, label: 'Reports' },
-    { icon: Settings, label: 'Settings' },
-  ]
+    { icon: BarChart, label: 'Dashboard', path: '/' },
+    { icon: FileText, label: 'License Plates',path: 'license-plates' },
+    { icon: CarFront, label: 'Predict File', path: '/file-predict' },
+    { icon: Users, label: 'User [WIP]',path: '/' },
+  ];
 
   return (
     <aside
@@ -20,16 +20,16 @@ export default function Sidebar({ isSidebarOpen } :SidebarProps) {
     >
       <nav className="mt-8 flex-1">
         {sidebarItems.map((item, index) => (
-          <a
+          <Link
             key={index}
-            href="#"
+            to={item.path} // ใช้ Link เพื่อทำการนำทาง
             className="flex items-center px-6 py-3 hover:bg-zinc-400 transition-colors duration-200"
           >
             <item.icon className="w-6 h-6" />
             {isSidebarOpen && <span className="ml-4">{item.label}</span>}
-          </a>
+          </Link>
         ))}
       </nav>
     </aside>
-  )
+  );
 }

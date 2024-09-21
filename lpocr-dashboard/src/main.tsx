@@ -7,15 +7,27 @@ import {
   RouterProvider,
 } from "react-router-dom";
 import Login from './pages/Login.tsx'
+import Content from './pages/Content.tsx';
+import FilePredict from './pages/FilePredict.tsx';
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
+    children: [
+      {
+        index: true, 
+        element: <Content />,
+      },
+      {
+        path: "file-predict",
+        element: <FilePredict />, 
+      },
+    ],
   },
   {
-    path: "/login",
-    element: <Login />,
+    path: "login",
+    element: <Login />, 
   },
 ]);
 

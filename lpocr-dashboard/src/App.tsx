@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import Sidebar from './components/Sidebar'
 import Navbar from './components/Navbar'
-import Content from './pages/Content'
+import { Outlet } from 'react-router-dom';
 import Footer from './components/Footer'
 
 function App() {
@@ -37,7 +37,7 @@ function App() {
 
         {/* Main Content */}
         <div className="flex-1 p-6 bg-gray-100">
-          <Content />
+          <Outlet />
         </div>
       </div>
 
