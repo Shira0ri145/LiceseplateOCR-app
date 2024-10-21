@@ -19,3 +19,41 @@ cd fastapi-lpocr-app
 ```
 
 ### 2. Set up the environment variables
+
+```bash
+# MAIL
+MAIL_USERNAME=
+MAIL_PASSWORD=
+MAIL_FROM=
+MAIL_PORT=
+MAIL_SERVER=
+
+# POSTGRESQL Database Config -use
+POSTGRESQL_HOST=
+POSTGRESQL_USER=
+POSTGRESQL_PASSWORD=
+POSTGRESQL_PORT=
+POSTGRESQL_DB=
+
+# REDIS
+REDIS_HOST=
+REDIS_PORT=
+REDIS_URL=
+
+# JWT Secret Key
+JWT_SECRET=
+JWT_ALGORITHM=
+
+# App Secret Key
+SECRET_KEY=
+```
+
+### 3. Build and Run with Docker Compose
+```bash
+docker-compose up --build -d
+```
+
+### 4. run project
+```bash
+fastapi dev
+```
