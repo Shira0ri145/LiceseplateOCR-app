@@ -53,7 +53,21 @@ SECRET_KEY=
 docker-compose up --build -d
 ```
 
-### 4. run project
+### 4. Create a Virtual Environment
+```bash
+# create venv
+python -m venv .venv
+
+# activate for mac
+source .venv/bin/activate
+# activate for window
+.venv\Scripts\Activate.ps1
+
+# install lib in requirement
+pip install -r requirements.txt
+```
+
+### 5. run project
 ```bash
 fastapi dev
 ```
