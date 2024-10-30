@@ -8,7 +8,7 @@ class UploadFileCreate(BaseModel):
 
 class UploadFileResponse(BaseModel):
     id: int
-    # user_id: int
+    user_id: int
     upload_name: str
     upload_url: HttpUrl
     upload_type: str

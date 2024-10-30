@@ -3,8 +3,10 @@ from fastapi import APIRouter, Depends, File, status, HTTPException, UploadFile
 from fastapi.responses import JSONResponse
 from app.config.database import db_dependency
 from app.config.dependencies import AccessTokenBearer, RoleChecker, get_current_user
+from app.config.settings import get_settings
 from app.models.upload import UploadFile as UploadFileModel
 from app.schemas.upload import UploadFileCreate
+from azure.storage.blob import BlobServiceClient
 
 
 # Create a new APIRouter instance for vehicle-related routes
@@ -14,12 +16,11 @@ vehicle_router = APIRouter(
 )
 access_token_bearer = AccessTokenBearer()
 role_checker = Depends(RoleChecker(["admin", "member"]))
+settings = get_settings()
 
 @vehicle_router.get('/', dependencies=[role_checker])
 async def hello(vehicle_details=Depends(access_token_bearer)):
     return {"message": "Welcome to the vehicle page"}
-
-
 
 ALLOWED_IMAGE_EXTENSIONS = {"jpg", "jpeg", "png"}
 ALLOWED_VIDEO_MIME = "video/"
@@ -28,11 +29,18 @@ ALLOWED_VIDEO_MIME = "video/"
 async def upload_vehicle_file(
     db: db_dependency,
     file: UploadFile = File(...),
-    current_user=Depends(access_token_bearer)  # Retrieve user from token
-):
+    token_details: dict = Depends(access_token_bearer),
+) -> dict:
+    user_id = int(token_details.get("user")["user_uid"])
+    # print("Token Details:", token_details)
+
+
+    # Initialize BlobServiceClient
+    blob_service_client = BlobServiceClient.from_connection_string(settings.AZURE_CONNECTION_STRING)
+    container_client = blob_service_client.get_container_client(settings.AZURE_CONTAINER_NAME)
+
     # Check file type: image or video
     if file.content_type.startswith("image/"):
-        # Verify image format
         ext = file.filename.split(".")[-1].lower()
         if ext not in ALLOWED_IMAGE_EXTENSIONS:
             raise HTTPException(
@@ -48,17 +56,21 @@ async def upload_vehicle_file(
             detail="Invalid file type. Only images (jpg, jpeg, png) and videos are allowed."
         )
 
-    # Prepare file data for the database
-    file_record = UploadFileCreate(
-    upload_name=file.filename,
-    upload_url=f"uploads/{file.filename}",  # Adjust the upload path as needed
-    upload_type=upload_type
-)
+    # Upload file to Azure Blob Storage
+    blob_client = container_client.get_blob_client(file.filename)
+    blob_client.upload_blob(file.file, overwrite=True)
 
-    # Save to database
+    # Get file URL from Azure Blob Storage
+    upload_url = f"https://{settings.AZURE_ACCOUNT_NAME}.blob.core.windows.net/{settings.AZURE_CONTAINER_NAME}/{file.filename}"
+
+    # Save file information to database
+    file_record = UploadFileCreate(
+        upload_name=file.filename,
+        upload_url=upload_url,
+        upload_type=upload_type
+    )
     db_file = UploadFileModel(
-        # user_id=current_user["id"],  # Access id from dictionary
-        user_id=1,
+        user_id=user_id,
         upload_name=file_record.upload_name,
         upload_url=file_record.upload_url,
         upload_type=file_record.upload_type
