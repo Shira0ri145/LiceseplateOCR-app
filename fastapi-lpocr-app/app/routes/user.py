@@ -23,7 +23,7 @@ from app.config.redis import add_jti_to_blocklist
 
 # Create a new APIRouter instance for authentication
 auth_router = APIRouter(
-    prefix='/auth',
+    prefix='/api/auth',
     tags=['auth'],
     responses={404: {"description": "Not found"}},
 )

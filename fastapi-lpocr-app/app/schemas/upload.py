@@ -14,5 +14,10 @@ class UploadFileResponse(BaseModel):
     upload_type: str
     created_at: datetime
 
-    class Config:
-        from_attributes = True
+class UploadFileSchema(BaseModel):
+    id: int
+    user_id: int
+    upload_name: str
+    upload_url: HttpUrl
+    upload_type: str
+    created_at: datetime
