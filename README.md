@@ -19,6 +19,10 @@ cd fastapi-lpocr-app
 ```
 
 ### 2. Set up the environment variables
+```bash
+import secrets
+secrets.token_hex(20)
+```
 
 ```bash
 # MAIL
