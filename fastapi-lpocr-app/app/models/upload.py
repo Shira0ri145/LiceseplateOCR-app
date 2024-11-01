@@ -11,6 +11,7 @@ class UploadFile(Base, TimestampMixin):
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     upload_name = Column(String, nullable=False)
     upload_url = Column(String, nullable=False)
+    obj_detect_url  = Column(String, nullable=False)
     upload_type = Column(String, nullable=False)  # เช่น "image" หรือ "video"
 
     user = relationship("Users", back_populates="uploads")
