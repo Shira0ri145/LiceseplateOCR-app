@@ -12,6 +12,7 @@ class UploadFile(Base, TimestampMixin):
     upload_name = Column(String, nullable=False)
     upload_url = Column(String, nullable=False)
     obj_detect_url  = Column(String, nullable=False)
-    upload_type = Column(String, nullable=False)  # เช่น "image" หรือ "video"
+    upload_type = Column(String, nullable=False)
 
     user = relationship("Users", back_populates="uploads")
+    cropped_images = relationship("CroppedImage", back_populates="upload_file")

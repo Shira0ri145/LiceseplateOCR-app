@@ -23,8 +23,11 @@ ALLOWED_VIDEO_EXTENSION = {"mp4"}
 
 class UploadFileService:
     def __init__(self):
-        self.model = YOLO("app/model_weights/yolo11s.pt")  # โหลดโมเดล YOLO11s
+        self.model = YOLO("app/model_weights/yolo11n.pt")  # โหลดโมเดล YOLO11s
+        self.lp_model = YOLO("app/model_weights/license_platev1nbest.pt")
         self.names = self.model.names
+
+        self.allowed_classes = [1, 2, 3, 5, 7]
 
     async def get_all_upload(self, session: AsyncSession):
         statement = select(UploadFileModel).order_by(desc(UploadFileModel.created_at))
@@ -71,8 +74,9 @@ class UploadFileService:
 
         # checking all response
         upload_url = f"https://{settings.AZURE_ACCOUNT_NAME}.blob.core.windows.net/{settings.AZURE_CONTAINER_NAME}/{file.filename}"
-
-        # return JSONResponse({"file_name":file.filename,"upload_url":upload_url,"video_url": obj_detect_url, "upload_type": upload_type})
+    
+        return JSONResponse({"file_name":file.filename,"upload_url":upload_url,"video_url": obj_detect_url, "upload_type": upload_type})
+    '''
         # Save file information to database
         file_record = UploadFileCreate(
             upload_name=file.filename,
@@ -92,6 +96,7 @@ class UploadFileService:
         await session.refresh(db_file)
 
         return {"message": "File uploaded successfully", "filename": db_file.upload_name, "upload_url": db_file.upload_url, "Object_detectURL":obj_detect_url}
+    '''
 
     async def get_upload(self, upload_id: str, session: AsyncSession):
         statement = select(UploadFileModel).where(UploadFileModel.id == upload_id)
@@ -161,13 +166,10 @@ class UploadFileService:
 
         image_url = f"https://{settings.AZURE_ACCOUNT_NAME}.blob.core.windows.net/{settings.AZURE_CONTAINER_NAME}/{blob_name}"
         return image_url
-
-            
-        
+     
 
     async def _predict_video(self, file: UploadFile, container_client) -> str:
-        
-        # สร้างไฟล์ชั่วคราวสำหรับเก็บข้อมูลวิดีโอที่อัปโหลด
+        # Create a temporary file for the uploaded video
         with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as temp_video:
             temp_video.write(await file.read())
             temp_video_path = temp_video.name
@@ -175,16 +177,14 @@ class UploadFileService:
         original_blob_name = file.filename
         original_blob_client = container_client.get_blob_client(original_blob_name)
         
-        # อ่านข้อมูลวิดีโอจากไฟล์ชั่วคราวและอัปโหลด
+        # Upload original video
         with open(temp_video_path, "rb") as original_file:
             video_data_original = io.BytesIO(original_file.read())
             original_blob_client.upload_blob(video_data_original, overwrite=True, content_settings=ContentSettings(content_type='video/mp4'))
 
-        # อ่านข้อมูลวิดีโอจากไฟล์ที่อัปโหลด
+        # Read video and set up for output
         cap = cv2.VideoCapture(temp_video_path)
         assert cap.isOpened(), "Error reading video file"
-
-        # กำหนดชื่อไฟล์เอาท์พุต
         output_path = os.path.join(tempfile.gettempdir(), "processed_video.mp4")
         fourcc = cv2.VideoWriter_fourcc(*'avc1')
         width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
@@ -192,44 +192,87 @@ class UploadFileService:
         fps = cap.get(cv2.CAP_PROP_FPS)
         out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
 
-        # ประมวลผลวิดีโอทีละเฟรม
+        cropped_images = []
+        # Process each frame
         while cap.isOpened():
             success, im0 = cap.read()
             if not success:
                 break
 
-            # ตรวจจับวัตถุในแต่ละเฟรม
+            # Detect objects in the frame
             results = self.model.predict(im0, show=False)
-            boxes = results[0].boxes.xyxy.cuda().tolist()
-            clss = results[0].boxes.cls.cuda().tolist()
+            boxes = results[0].boxes.xyxy.cpu().tolist()
+            clss = results[0].boxes.cls.cpu().tolist()
             annotator = Annotator(im0, line_width=2, example=self.names)
 
-            # วาดกรอบรอบวัตถุที่ตรวจจับได้
+            # Draw bounding boxes only for allowed classes
             if boxes is not None:
                 for box, cls in zip(boxes, clss):
-                    annotator.box_label(box, color=colors(int(cls), True), label=self.names[int(cls)])
+                    if int(cls) in self.allowed_classes:
+                        # Draw bounding box for allowed classes
+                        annotator.box_label(box, color=colors(int(cls), True), label=self.names[int(cls)])
 
-            # เขียนเฟรมที่ประมวลผลแล้วไปยังวิดีโอเอาท์พุต
+                        # Crop the vehicle area and run license plate detection
+                        x1, y1, x2, y2 = map(int, box)
+                        vehicle_crop = im0[y1:y2, x1:x2]
+
+                        # Detect license plates within the vehicle area
+                        lp_results = self.lp_model.predict(vehicle_crop, show=False)
+                        lp_boxes = lp_results[0].boxes.xyxy.cpu().tolist()
+
+                        # Annotate detected license plates on the original frame
+                        if lp_boxes:  # Only proceed if license plates are detected
+                            for lp_box in lp_boxes:
+                                lp_x1, lp_y1, lp_x2, lp_y2 = map(int, lp_box)
+                                annotator.box_label(
+                                    (x1 + lp_x1, y1 + lp_y1, x1 + lp_x2, y1 + lp_y2),
+                                    color=(0, 255, 0),
+                                    label="License Plate"
+                                )
+
+                            # Save cropped vehicle image to Azure Blob if license plates are detected
+                            crop_image = im0[y1:y2, x1:x2]
+
+                            crop_folder_name = f"crop_{file.filename}"
+                            crop_image_filename = f"{crop_folder_name}/crop_{file.filename}_{len(cropped_images) + 1}.jpg"  # Generate a unique filename
+
+                            # Upload the cropped image to Azure Blob Storage
+                            crop_blob_client = container_client.get_blob_client(crop_image_filename)
+                            _, buffer = cv2.imencode('.jpg', crop_image)  # Encode image to JPEG format
+                            crop_blob_client.upload_blob(io.BytesIO(buffer), overwrite=True, content_settings=ContentSettings(content_type='image/jpeg'))
+
+                            # Create the URL for the cropped image
+                            crop_image_url = f"https://{settings.AZURE_ACCOUNT_NAME}.blob.core.windows.net/{settings.AZURE_CONTAINER_NAME}/{crop_image_filename}"
+
+                            # Add the cropped image data to the array
+                            current_frame = int(cap.get(cv2.CAP_PROP_POS_FRAMES))
+                            crop_timestamp = current_frame / fps
+                            cropped_images.append({
+                                "upload_id": 1,  # Fixed value as per your request
+                                "crop_image_url": crop_image_url,
+                                "crop_class_name": str(cls),  # Get class name from the detected class
+                                "license_plate": "EN 2332",  # Fixed value as per your request
+                                "crop_timestamp": crop_timestamp  # Current frame number
+                            })
+
+            # Write processed frame to output
             out.write(im0)
 
-        # ปิดการเปิดวิดีโอและบันทึกวิดีโอ
+        # Release resources
         cap.release()
         out.release()
 
-        # upload predicted to Azure Blob Storage
+        # Upload processed video
         blob_name = f"predicted_{file.filename}"
         blob_client = container_client.get_blob_client(blob_name)
-
         with open(output_path, "rb") as output_file:
             video_data_predicted = io.BytesIO(output_file.read())
             blob_client.upload_blob(video_data_predicted, overwrite=True, content_settings=ContentSettings(content_type='video/mp4'))
 
-        # ลบไฟล์ชั่วคราว
+        # Clean up temporary files
         os.remove(temp_video_path)
         os.remove(output_path)
 
-        # ส่งคืน URL ของวิดีโอที่อัปโหลด
+        # Return URL of the uploaded video
         video_url = f"https://{settings.AZURE_ACCOUNT_NAME}.blob.core.windows.net/{settings.AZURE_CONTAINER_NAME}/{blob_name}"
         return video_url
-
- 
