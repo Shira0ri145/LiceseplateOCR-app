@@ -9,6 +9,7 @@ import {
 import Login from './pages/Login.tsx'
 import Content from './pages/Content.tsx';
 import FilePredict from './pages/FilePredict.tsx';
+import Register from './pages/Register.tsx';
 
 const router = createBrowserRouter([
   {
@@ -29,6 +30,10 @@ const router = createBrowserRouter([
     path: "login",
     element: <Login />, 
   },
+  {
+    path: "register",
+    element: <Register/>
+  }
 ]);
 
 createRoot(document.getElementById('root')!).render(
