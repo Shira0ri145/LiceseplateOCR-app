@@ -60,15 +60,17 @@ async def get_new_access_token(token_details: dict = Depends(RefreshTokenBearer(
     return await get_new_access_token_from_service(token_details)
 
 @auth_router.get('/profile')
-async def get_current_user(user_and_role: tuple = Depends(get_current_user), _: bool = Depends(role_checker)   ):
+async def get_current_user(user_and_role: tuple = Depends(get_current_user), _: bool = Depends(role_checker)):
     user, role = user_and_role
-    return {
-        "username": user.username,
-        "email": user.email,
-        "is_verified": user.is_verified,
-        "created_at": user.created_at,
-        "role": role
-    }
+    return JSONResponse(
+        content={
+            "username": user.username,
+            "email": user.email,
+            "is_verified": user.is_verified,
+            "created_at": user.created_at.isoformat(),  # Convert datetime to ISO format for JSON
+            "role": role
+        }
+    )
 
 @auth_router.get('/logout')
 async def revoke_token(token_details: dict = Depends(AccessTokenBearer())):

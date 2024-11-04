@@ -14,3 +14,4 @@ PyJWT==2.9.0
 
 # ML lib
 ultralytics==8.3.27
+easyocr==1.7.2

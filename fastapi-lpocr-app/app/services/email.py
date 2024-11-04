@@ -17,6 +17,9 @@ async def send_account_verification_email(email : list ,user: Users):
 
     token = jwt.encode(data, settings.SECRET_KEY, algorithm='HS256')
 
+    # fortest
+    # href="http://localhost:8000/api/auth/verification/?token={token}">
+    # forclient href="http://localhost:5173/verify/?token={token}"
     verify_template = f"""
         <!DOCTYPE html>
         <html>

@@ -1,12 +1,12 @@
 from typing import List
 from fastapi import APIRouter, Depends, File, status, HTTPException, UploadFile
-from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
+from fastapi.responses import JSONResponse, StreamingResponse
 from ultralytics import YOLO
 from app.config.database import db_dependency
 from app.config.dependencies import AccessTokenBearer, RoleChecker, get_current_user
 from app.config.settings import get_settings
 
-from azure.storage.blob import BlobServiceClient,ContentSettings
+from azure.storage.blob import BlobServiceClient
 
 from app.schemas.upload import UploadFileSchema
 from app.services.upload import UploadFileService
@@ -70,39 +70,25 @@ async def get_vehicle_file(upload_id: int, db: db_dependency):
         return fileupload
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Fileupload not found")
 
-model = YOLO("app/model_weights/yolo11s.pt")
-import numpy as np
-from PIL import Image
-import io
-from ultralytics.utils.plotting import Annotator, colors
-# from azure.storage.blob import BlobServiceClient,ContentSettings
-names = model.names
+@vehicle_router.delete("/delete/{upload_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_upload(upload_id: int, db: db_dependency):
+    fileupload_to_delete = await upload_service.delete_file(upload_id, db)
 
-@vehicle_router.post("/predict/")
-async def predict(file: UploadFile = File(...)):
-    # อ่านไฟล์ภาพจาก UploadFile
-    contents = await file.read()
-    image = Image.open(io.BytesIO(contents))
-    
-    # แปลงภาพเป็น numpy array
-    img_np = np.array(image)
-    
-    # ทำการ Predict โดยใช้ YOLO
-    results = model(img_np)
-    
-    # วาดผลลัพธ์บนภาพ
-    result_image = results[0].plot()
-    
-    # แปลงกลับเป็นภาพ PIL
-    result_pil_image = Image.fromarray(result_image)
+    # เดี๋ยวจะต้องมาลบรูปทีหลังด้วย เขียนกันลืมไว้ก่อน
+    if fileupload_to_delete is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Fileupload not found")
+    return {}
 
-    # สร้าง byte stream ของภาพเพื่อส่งกลับไปยัง client
-    byte_io = io.BytesIO()
-    result_pil_image.save(byte_io, format='PNG')
-    byte_io.seek(0)
+import easyocr
+ocr = easyocr.Reader(['th'])
+from fastapi import Request
 
-    # ส่งภาพกลับไปเป็น response
-    return StreamingResponse(byte_io, media_type="image/png")
+@vehicle_router.post("/ocr_form")
+async def do_ocr_form(request: Request, file: UploadFile = File(...)):
+    if file is not None:
+        res = ocr.readtext(file.file.read())
+        # รวมข้อความในลิสต์เป็นสตริงเดียวโดยใช้ join
+        combined_text = " ".join(item[1] for item in res)
+        return combined_text
 
-
-
+    return {"error": "missing file"}
