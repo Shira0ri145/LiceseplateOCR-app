@@ -8,9 +8,9 @@ interface SidebarProps {
 export default function Sidebar({ isSidebarOpen }: SidebarProps) {
   const sidebarItems = [
     { icon: BarChart, label: 'Dashboard', path: '/' },
-    { icon: FileText, label: 'License Plates',path: 'license-plates' },
     { icon: CarFront, label: 'Predict File', path: '/file-predict' },
-    { icon: Users, label: 'User [WIP]',path: '/' },
+    { icon: FileText, label: 'Upload history',path: '/history' },
+    { icon: Users, label: 'Profile',path: '/profile' },
   ];
 
   return (

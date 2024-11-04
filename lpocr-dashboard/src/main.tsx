@@ -11,6 +11,7 @@ import Content from './pages/Content.tsx';
 import FilePredict from './pages/FilePredict.tsx';
 import Register from './pages/Register.tsx';
 import Verify from './pages/Verify.tsx';
+import Profile from './pages/Profile.tsx';
 
 const router = createBrowserRouter([
   {
@@ -25,6 +26,10 @@ const router = createBrowserRouter([
         path: "file-predict",
         element: <FilePredict />, 
       },
+      {
+        path: "profile",
+        element: <Profile/>,
+      }
     ],
   },
   {
