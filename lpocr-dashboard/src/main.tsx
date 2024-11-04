@@ -10,6 +10,7 @@ import Login from './pages/Login.tsx'
 import Content from './pages/Content.tsx';
 import FilePredict from './pages/FilePredict.tsx';
 import Register from './pages/Register.tsx';
+import Verify from './pages/Verify.tsx';
 
 const router = createBrowserRouter([
   {
@@ -33,6 +34,10 @@ const router = createBrowserRouter([
   {
     path: "register",
     element: <Register/>
+  },
+  {
+    path: "verify",
+    element: <Verify/>
   }
 ]);
 
