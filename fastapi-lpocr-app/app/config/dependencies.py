@@ -8,7 +8,7 @@ from fastapi.exceptions import HTTPException
 from app.config.database import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.models import Users
+from app.models.user import Users
 from app.services.user import get_rolename_by_usersroles, get_user_by_email
 
 

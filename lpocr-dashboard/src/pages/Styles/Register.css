@@ -1,0 +1,207 @@
+/* Container and Card */
+.register-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f7f7f7;
+}
+
+.register-card {
+    width: 100%;
+    max-width: 400px;
+    padding: 2rem;
+    border-radius: 8px;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.register-header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+}
+
+/* Form Group */
+.register-form-group {
+    margin-bottom: 1.5rem;
+}
+
+.register-form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 14px;
+    color: #555;
+}
+
+.register-form-input {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    transition: border-color 0.3s;
+}
+
+.register-form-input:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+/* Password Container */
+.password-container {
+    position: relative;
+}
+
+.password-toggle {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transform: translateY(-50%);
+}
+
+.password-toggle svg {
+    width: 20px;
+    height: 20px;
+    color: #888;
+}
+
+/* Error Message */
+.error-message {
+    margin-top: 0.5rem;
+    font-size: 14px;
+    color: #e74c3c;
+}
+
+/* Link */
+.signin-link {
+    margin-top: 1rem;
+    text-align: center;
+    font-size: 14px;
+}
+
+.signin-link a {
+    color: #007bff;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.signin-link a:hover {
+    color: #0056b3;
+}
+
+/* Submit Button */
+.register-submit-btn {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 16px;
+    font-weight: bold;
+    color: #fff;
+    background-color: #007bff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.register-submit-btn:hover {
+    background-color: #0056b3;
+}
+
+
+/* password */
+/* Password Requirements */
+.password-requirements {
+    list-style: none;
+    padding: 0;
+    margin-top: 0.5rem;
+    font-size: 12px; /* Reduced font size */
+    color: #555;
+}
+
+.password-requirements li {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.25rem;
+}
+
+.password-requirements li svg {
+    margin-right: 0.5rem;
+}
+
+/* Other CSS remains the same */
+
+.register-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f7f7f7;
+}
+
+.register-card {
+    width: 100%;
+    max-width: 400px;
+    padding: 2rem;
+    border-radius: 8px;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.register-header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+}
+
+/* Additional styling for form inputs and buttons */
+
+.password-container {
+    position: relative;
+}
+
+.password-toggle {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transform: translateY(-50%);
+}
+
+.password-toggle svg {
+    width: 20px;
+    height: 20px;
+    color: #888;
+}
+
+.register-form-input:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+.register-submit-btn {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 10px;
+    color: #fff;
+    background-color: #007bff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.register-submit-btn:hover {
+    background-color: #0056b3;
+}

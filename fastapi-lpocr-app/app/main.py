@@ -13,6 +13,7 @@ app.include_router(auth_router)
 
 app.include_router(vehicle_router)
 
+
 '''
 @app.on_event("startup")
 async def startup_event():

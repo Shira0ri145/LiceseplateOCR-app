@@ -1,0 +1,13 @@
+.video-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%; /* กำหนดให้เต็มความสูง */
+  }
+  
+  .video {
+    width: 100%;
+    height: auto; /* ใช้ auto เพื่อรักษาสัดส่วน */
+  }
+  

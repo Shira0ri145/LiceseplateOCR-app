@@ -45,6 +45,11 @@ class Settings(BaseSettings):
     # ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.environ.get("ACCESS_TOKEN_EXPIRE_MINUTES", 3))
     # REFRESH_TOKEN_EXPIRE_MINUTES: int = int(os.environ.get("REFRESH_TOKEN_EXPIRE_MINUTES", 1440))
 
+    # Azure Blob Storage Config
+    AZURE_CONNECTION_STRING: str = os.environ.get("AZURE_CONNECTION_STRING", "")
+    AZURE_ACCOUNT_NAME: str = os.environ.get("AZURE_ACCOUNT_NAME", "mercuonestorage")
+    AZURE_CONTAINER_NAME: str = os.environ.get("AZURE_CONTAINER_NAME", "vehicle-imageclassify")
+
     # App Secret Key
     SECRET_KEY: str = os.environ.get("SECRET_KEY", "8deadce9449770680910741063cd0a3fe0acb62a8978661f421bbcbb66dc41f1")
 

@@ -10,7 +10,7 @@ from app.config.security import (
     get_token_payload, 
     verify_password)
 
-from app.models.models import (
+from app.models.user import (
     Users, 
     UsersRoles, 
     Roles)

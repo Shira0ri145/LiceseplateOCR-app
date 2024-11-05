@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import text  # Import text from SQLAlchemy
 from app.config.database import engine, Base
-from app.models.models import Roles
+from app.models.user import Roles
 
 async def init_db():
     # Create all the database tables (schemas)

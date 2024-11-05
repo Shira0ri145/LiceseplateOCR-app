@@ -8,7 +8,7 @@ import logging
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from app.config.settings import get_settings
-from app.models.models import Users
+from app.models.user import Users
 
 
 SPECIAL_CHARACTERS = ['@', '#', '$', '%', '=', ':', '?', '.', '/', '|', '~', '>']

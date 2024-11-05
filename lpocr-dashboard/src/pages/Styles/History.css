@@ -1,0 +1,54 @@
+.history-container {
+    max-width: 800px;
+    margin: auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.loading {
+    text-align: center;
+    font-size: 1.5rem;
+}
+
+.empty-state {
+    text-align: center;
+    font-size: 1.5rem;
+    color: #888;
+}
+
+.upload-list {
+    margin-top: 20px;
+    max-height: 400px; /* กำหนดความสูงสูงสุดของกล่องเลื่อน */
+    overflow-y: auto; /* เปิดใช้งานการเลื่อนในแนวตั้ง */
+    padding: 10px; /* เพิ่มระยะห่างภายใน */
+    border: 1px solid #ddd; /* กรอบ */
+    border-radius: 4px; /* มุมโค้ง */
+    background-color: #fff; /* พื้นหลัง */
+}
+
+.upload-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border: 1px solid #ddd;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    background-color: #fff;
+    transition: background-color 0.3s;
+}
+
+.upload-item:hover {
+    background-color: #f2f2f2;
+}
+
+.download-link {
+    text-decoration: none;
+    color: #007bff;
+}
+
+.download-link:hover {
+    text-decoration: underline;
+}

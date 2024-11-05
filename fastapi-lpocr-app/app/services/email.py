@@ -1,6 +1,6 @@
 import jwt
 from app.config.settings import get_settings
-from app.models.models import Users
+from app.models.user import Users
 from app.config.email import send_email
 
 
@@ -17,6 +17,9 @@ async def send_account_verification_email(email : list ,user: Users):
 
     token = jwt.encode(data, settings.SECRET_KEY, algorithm='HS256')
 
+    # fortest
+    # href="http://localhost:8000/api/auth/verification/?token={token}">
+    # forclient href="http://localhost:5173/verify/?token={token}"
     verify_template = f"""
         <!DOCTYPE html>
         <html>
@@ -29,7 +32,7 @@ async def send_account_verification_email(email : list ,user: Users):
                     <p>Please click on the button below to verify your account</p>
                     <a style="margin-top: 1rem; padding: 1rem; border-radius: 0.5rem; font-size: 1rem;
                     text-decoration: none; background: #0275d8; color: white;"
-                    href="http://localhost:8000/auth/verification/?token={token}">
+                    href="http://localhost:5173/verify/?token={token}">
                     Verify your email
                     </a>
                     <p>Please kindly ignore this email if you did not register for DashboardOCR-app and nothing will happen. Thank you.</p>
