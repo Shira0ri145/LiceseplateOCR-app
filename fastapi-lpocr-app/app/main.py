@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from app.routes.user import auth_router
 from app.routes.vehicle import vehicle_router
+from app.routes.webcam import webcam_router
 from app.init_db import init_db
 from app.middleware import register_middleware
 
@@ -13,6 +14,7 @@ app.include_router(auth_router)
 
 app.include_router(vehicle_router)
 
+app.include_router(webcam_router)
 
 '''
 @app.on_event("startup")

@@ -7,6 +7,7 @@ __pycache__/
 *.sqlite3
 
 # Virtual Environment
+app/routes/ocr
 venv/
 env/
 .env/
