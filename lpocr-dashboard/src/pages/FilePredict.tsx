@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
+import axios from 'axios';
 import kilmerVideo from '../assets/vdo/kilmer.mp4'; // Import the default video file
+import { useNavigate } from 'react-router-dom'; // Import useNavigate for redirecting
 
-export default function Content() {
+export default function FilePredict() {
   useEffect(() => {
     document.title = 'Home - DashboardOCR';
   }, []);
@@ -9,42 +11,14 @@ export default function Content() {
   const [file, setFile] = useState<File | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const navigate = useNavigate(); // Initialize useNavigate
 
   const data = [
     { type: 'Kilmer', plate: 'ABC123', date: '2023-06-15 14:30:00' },
     { type: 'SUV', plate: 'XYZ789', date: '2023-06-15 15:45:00' },
     { type: 'Truck', plate: 'DEF456', date: '2023-06-15 16:20:00' },
-    { type: 'SUV', plate: 'XYZ789', date: '2023-06-15 15:45:00' },
-    { type: 'Truck', plate: 'DEF456', date: '2023-06-15 16:20:00' },
-    { type: 'SUV', plate: 'XYZ789', date: '2023-06-15 15:45:00' },
-    { type: 'Truck', plate: 'DEF456', date: '2023-06-15 16:20:00' },
-    { type: 'SUV', plate: 'XYZ789', date: '2023-06-15 15:45:00' },
-    { type: 'Truck', plate: 'DEF456', date: '2023-06-15 16:20:00' },
-    { type: 'SUV', plate: 'XYZ789', date: '2023-06-15 15:45:00' },
-    { type: 'Truck', plate: 'DEF456', date: '2023-06-15 16:20:00' },
-    { type: 'SUV', plate: 'XYZ789', date: '2023-06-15 15:45:00' },
-    { type: 'Truck', plate: 'DEF456', date: '2023-06-15 16:20:00' },
-    { type: 'SUV', plate: 'XYZ789', date: '2023-06-15 15:45:00' },
-    { type: 'Truck', plate: 'DEF456', date: '2023-06-15 16:20:00' },
-    { type: 'SUV', plate: 'XYZ789', date: '2023-06-15 15:45:00' },
-    { type: 'Truck', plate: 'DEF456', date: '2023-06-15 16:20:00' },
-    { type: 'SUV', plate: 'XYZ789', date: '2023-06-15 15:45:00' },
-    { type: 'Truck', plate: 'DEF456', date: '2023-06-15 16:20:00' },
-    { type: 'SUV', plate: 'XYZ789', date: '2023-06-15 15:45:00' },
-    { type: 'Truck', plate: 'DEF456', date: '2023-06-15 16:20:00' },
-    { type: 'SUV', plate: 'XYZ789', date: '2023-06-15 15:45:00' },
-    { type: 'Truck', plate: 'DEF456', date: '2023-06-15 16:20:00' },
+    // Add more data as needed...
   ];
-
-  // Function to handle video playback at specific times
-  const handlePlayClick = (time: string) => {
-    const video = document.getElementById('videoPlayer') as HTMLVideoElement;
-    if (video) {
-      const timeInSeconds = new Date(time).getSeconds(); // Modify as needed
-      video.currentTime = timeInSeconds;
-      video.play();
-    }
-  };
 
   // Function to handle file upload
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -90,6 +64,32 @@ export default function Content() {
     return <p>Unsupported file type.</p>;
   };
 
+  const uploadFile = async () => {
+    if (!file) return;
+
+    const accessToken = localStorage.getItem('access_token');
+    if (!accessToken) {
+      navigate('/login'); // Redirect to login if token is not found
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await axios.post('http://localhost:8000/api/vehicle/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${accessToken}` // Include the access token here
+        },
+      });
+      console.log('File uploaded successfully:', response.data);
+      toggleModal(); // Close modal after upload
+    } catch (error) {
+      console.error('Error uploading file:', error);
+    }
+  };
+
   return (
     <div className="flex-1 overflow-auto p-6 bg-gray-100">
       <div className="flex items-center mb-4">
@@ -108,9 +108,8 @@ export default function Content() {
         />
       </div>
 
-
       {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-20"> {/* เพิ่ม z-20 ที่นี่ */}
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-20">
           <div className="bg-white p-6 rounded-lg shadow-md">
             <h2 className="text-lg font-semibold mb-4">Upload File</h2>
             <input
@@ -135,10 +134,7 @@ export default function Content() {
                 Cancel
               </button>
               <button
-                onClick={() => {
-                  // Logic to upload the file can be added here
-                  toggleModal(); // Close modal after upload
-                }}
+                onClick={uploadFile} // Call the upload function here
                 className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
               >
                 Upload
@@ -148,42 +144,31 @@ export default function Content() {
         </div>
       )}
 
-
       <div className="flex mt-4">
         <div className="w-2/3 p-6">
           <div className="bg-white shadow-md rounded-lg p-4">
             <h3 className="text-lg font-semibold">License Plate Data</h3>
-            <div className="max-h-96 overflow-y-auto mt-4"> {/* กำหนดความสูงและให้ scroll bar */}
+            <div className="max-h-96 overflow-y-auto mt-4">
               <table className="min-w-full">
                 <thead className="bg-gray-100 sticky top-0 z-10">
                   <tr className="border-b">
                     <th className="text-left py-2">Car Type</th>
                     <th className="text-left py-2">License Plate</th>
                     <th className="text-left py-2">Detect Time</th>
-                    <th className="text-left py-2">Action</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredData.map((item, index) => (
                     <tr key={index} className="border-b">
-                      <td className="py-2">{item.type}</td>
-                      <td className="py-2">{item.plate}</td>
-                      <td className="py-2">{item.date}</td>
-                      <td className="py-2">
-                        <button
-                          onClick={() => handlePlayClick(item.date)}
-                          className="bg-gray-200 px-3 py-1 rounded hover:bg-gray-300"
-                        >
-                          Play
-                        </button>
-                      </td>
+                      <td className="py-2 text-center">{item.type}</td>
+                      <td className="py-2 text-center">{item.plate}</td>
+                      <td className="py-2 text-center">{item.date}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
           </div>
-
         </div>
 
         <div className="w-1/3 p-6">

@@ -7,6 +7,7 @@ from fastapi import HTTPException, status, UploadFile
 from fastapi.responses import JSONResponse
 import numpy as np
 from sqlalchemy import select, desc
+from sqlalchemy.orm import joinedload
 from sqlalchemy.ext.asyncio import AsyncSession
 from azure.storage.blob import BlobServiceClient, ContentSettings
 from app.config.settings import get_settings
@@ -160,10 +161,10 @@ class UploadFileService:
     
 
     async def get_upload(self, upload_id: str, session: AsyncSession):
-        statement = select(UploadFileModel).where(UploadFileModel.id == upload_id)
+        # Use joinedload to fetch the related CroppedImage records
+        statement = select(UploadFileModel).options(joinedload(UploadFileModel.cropped_images)).where(UploadFileModel.id == upload_id)
 
         result = await session.execute(statement)
-
         file_upload = result.scalars().first()
 
         return file_upload if file_upload is not None else None

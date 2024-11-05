@@ -68,6 +68,7 @@ async def get_vehicle_file(upload_id: int, db: db_dependency):
 
     if fileupload:
         return fileupload
+    
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Fileupload not found")
 
 @vehicle_router.get(

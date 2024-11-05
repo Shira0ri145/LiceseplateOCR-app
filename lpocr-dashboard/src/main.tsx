@@ -33,7 +33,7 @@ const router = createBrowserRouter([
         element: <Profile/>,
       },
       {
-        path: "upload",
+        path: "/history/:id",
         element: <UploadHistory/>,
       },
       {

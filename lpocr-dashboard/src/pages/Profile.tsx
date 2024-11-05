@@ -51,7 +51,7 @@ const Profile = () => {
     const { username, email, is_verified, created_at, role } = profileData;
 
     return (
-        <div className="flex items-center justify-center  bg-gray-100">
+        <div className="flex items-center justify-center bg-gray-100">
             <div className="bg-white shadow-lg rounded-lg p-8 w-full h-full mx-4 md:mx-8">
                 <h2 className="text-3xl font-bold mb-6 text-center text-gray-800">User Profile</h2>
                 <div className="space-y-4 text-lg text-gray-700">

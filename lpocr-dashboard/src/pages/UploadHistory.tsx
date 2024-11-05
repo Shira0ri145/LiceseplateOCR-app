@@ -1,118 +1,79 @@
 import { useEffect, useState } from 'react';
-import kilmerVideo from '../assets/vdo/kilmer.mp4'; // Import the default video file
+import { useParams } from 'react-router-dom'; // Import useParams to get URL parameters
+import axios from 'axios'; // Import axios for making API requests
+
+interface FileData {
+  upload_url: string;
+  obj_detect_url: string;
+  upload_type: 'image' | 'video';
+  cropped_images: CroppedImage[]; // Add the cropped_images array
+}
+
+interface CroppedImage {
+  upload_id: number;
+  id: number;
+  crop_timestamp: number;
+  crop_class_name: string;
+  crop_image_url: string;
+  license_plate: string;
+  created_at: string;
+  modified_at: string | null;
+}
 
 export default function UploadHistory() {
+  const { id } = useParams<{ id: string }>(); // Get the ID from the URL parameters
+
   useEffect(() => {
     document.title = 'Home - DashboardOCR';
-  }, []);
+    fetchUploadData(); // Call the fetch function
+  }, [id]); // Add id as a dependency to refetch if it changes
 
-  const [file, setFile] = useState<File | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [fileData, setFileData] = useState<FileData | null>(null); // Update the type here
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedImage, setSelectedImage] = useState<string | null>(null); // State for selected image for popup
+  const [showPopup, setShowPopup] = useState(false); // State for popup visibility
 
-  const data = [
-    { type: 'Kilmer', plate: 'ABC123', date: '2023-06-15 14:30:00' },
-    { type: 'SUV', plate: 'XYZ789', date: '2023-06-15 15:45:00' },
-    { type: 'Truck', plate: 'DEF456', date: '2023-06-15 16:20:00' },
-    // Add other data entries here
-  ];
-
-  // Function to handle video playback at specific times
-  const handlePlayClick = (time: string) => {
-    const video = document.getElementById('videoPlayer') as HTMLVideoElement;
-    if (video) {
-      const timeInSeconds = new Date(time).getSeconds(); // Modify as needed
-      video.currentTime = timeInSeconds;
-      video.play();
+  const fetchUploadData = async () => {
+    if (id) {
+      try {
+        const response = await axios.get(`http://localhost:8000/api/vehicle/${id}`);
+        setFileData(response.data); // Axios will automatically parse the data
+      } catch (error) {
+        console.error('Error fetching upload data:', error);
+        // Handle error here if needed
+      }
     }
   };
 
-  // Function to handle file upload
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = event.target.files?.[0];
-    if (selectedFile) {
-      setFile(selectedFile);
-    }
-  };
-
-  // Function to toggle modal visibility
-  const toggleModal = () => {
-    setIsModalOpen(!isModalOpen);
-  };
-
-  // Function to filter data based on search query
-  const filteredData = data.filter(item => 
-    item.plate.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const renderPreview = () => {
-    if (!file) return null;
-
-    const fileURL = URL.createObjectURL(file);
-
-    if (file.type.startsWith('video/')) {
+  const renderPreview = (url: string, type: string) => {
+    if (type === 'image') {
+      return (
+        <img src={url} alt="Uploaded preview" className="mt-2" width="300" />
+      );
+    } else if (type === 'video') {
       return (
         <video className="mt-2" width="300" controls>
-          <source src={fileURL} type={file.type} />
+          <source src={url} type="video/mp4" />
           Your browser does not support the video tag.
         </video>
       );
-    } else if (file.type.startsWith('image/')) {
-      return (
-        <img
-          src={fileURL}
-          alt="Uploaded preview"
-          className="mt-2"
-          width="300"
-        />
-      );
     }
-
     return <p>Unsupported file type.</p>;
   };
 
+  const openPopup = (url: string) => {
+    setSelectedImage(url);
+    setShowPopup(true);
+  };
+
+  const closePopup = () => {
+    setShowPopup(false);
+    setSelectedImage(null);
+  };
+
+
   return (
     <div className="flex-1 overflow-auto p-1 bg-gray-100">
-      {/* Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-lg font-semibold mb-4">Upload File</h2>
-            <input
-              type="file"
-              onChange={handleFileUpload}
-              className="border border-gray-300 rounded-md p-2 w-full"
-            />
-            {file && (
-              <div className="mt-4">
-                <h3 className="font-semibold">Preview:</h3>
-                {renderPreview()}
-                <p>File Name: {file.name}</p>
-                <p>Type: {file.type}</p>
-                <p>Size: {(file.size / 1024).toFixed(2)} KB</p>
-              </div>
-            )}
-            <div className="flex justify-end mt-4">
-              <button
-                onClick={toggleModal}
-                className="bg-gray-200 px-3 py-1 rounded hover:bg-gray-300 mr-2"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => {
-                  // Logic to upload the file can be added here
-                  toggleModal(); // Close modal after upload
-                }}
-                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-              >
-                Upload
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       <div className="flex mt-4">
         <div className="w-2/3 p-6">
           <div className="bg-white shadow-md rounded-lg p-4">
@@ -126,61 +87,72 @@ export default function UploadHistory() {
                 className="border border-gray-300 rounded-md p-2 ml-4"
               />
             </div>
-            <div className="max-h-96 overflow-y-auto mt-4"> {/* Set height and enable scrollbar */}
+            <div className="max-h-96 overflow-y-auto mt-4">
               <table className="min-w-full">
                 <thead className="bg-gray-100 sticky top-0 z-10">
                   <tr className="border-b">
-                    <th className="text-left py-2">Car Type</th>
-                    <th className="text-left py-2">License Plate</th>
-                    <th className="text-left py-2">Detect Time</th>
-                    <th className="text-left py-2">Action</th>
+                    <th className="text-center py-2">Detect</th>
+                    <th className="text-center py-2">Car Type</th>
+                    <th className="text-center py-2">License Plate</th>
+                    <th className="text-center py-2">Detect Time</th>
                   </tr>
                 </thead>
+
                 <tbody>
-                  {filteredData.map((item, index) => (
-                    <tr key={index} className="border-b">
-                      <td className="py-2">{item.type}</td>
-                      <td className="py-2">{item.plate}</td>
-                      <td className="py-2">{item.date}</td>
-                      <td className="py-2">
-                        <button
-                          onClick={() => handlePlayClick(item.date)}
-                          className="bg-gray-200 px-3 py-1 rounded hover:bg-gray-300"
-                        >
-                          Play
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                  {fileData && fileData.cropped_images
+                    .filter((image) => {
+                      const plate = image.license_plate.toLowerCase();
+                      return plate.includes(searchQuery.toLowerCase());
+                    })
+                    .map((image) => (
+                      <tr key={image.id} className="border-b">
+                        <td className="py-2 flex justify-center">
+                          <img
+                            src={image.crop_image_url}
+                            alt="Cropped"
+                            className="w-16 h-16 cursor-pointer"
+                            onClick={() => openPopup(image.crop_image_url)}
+                          />
+                        </td>
+                        <td className="py-2 text-center">{image.crop_class_name}</td>
+                        <td className="py-2 text-center">{image.license_plate || 'N/A'}</td>
+                        <td className="py-2 text-center">{image.crop_timestamp.toFixed(2)}</td>
+                      </tr>
+                    ))}
                 </tbody>
               </table>
             </div>
           </div>
         </div>
-
+  
         <div className="w-1/3 p-6">
           <div className="bg-white shadow-md rounded-lg p-4">
-            <h3 className="text-lg font-semibold">Original file</h3>
-            <div className="mt-4">
-              <div className="w-full flex items-center justify-center">
-                <video id="videoPlayer" width="100%" height="100%" controls>
-                  <source src={kilmerVideo} type="video/mp4" />
-                  Your browser does not support the video tag.
-                </video>
-              </div>
+            <h3 className="text-lg font-semibold text-center">Original file</h3>
+            <div className="mt-4 flex justify-center">
+              {fileData && renderPreview(fileData.upload_url, fileData.upload_type)}
             </div>
-            <h3 className="text-lg mt-4 font-semibold">Predict</h3>
-            <div className="mt-4">
-              <div className="w-full flex items-center justify-center">
-                <video id="videoPlayer" width="100%" height="100%" controls>
-                  <source src={kilmerVideo} type="video/mp4" />
-                  Your browser does not support the video tag.
-                </video>
-              </div>
+            <h3 className="text-lg mt-4 font-semibold text-center">Predict</h3>
+            <div className="mt-4 flex justify-center">
+              {fileData && renderPreview(fileData.obj_detect_url, fileData.upload_type)}
             </div>
           </div>
         </div>
       </div>
+  
+      {showPopup && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-4 rounded">
+            <img src={selectedImage!} alt="Cropped" className="max-w-full max-h-[80vh]" />
+            <button
+              onClick={closePopup}
+              className="mt-2 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
+  
 }
