@@ -8,13 +8,13 @@ import { Link, useNavigate } from 'react-router-dom';
 export default function Register() {
     const navigate = useNavigate();
 
-    // ตรวจสอบการล็อกอินเมื่อคอมโพเนนต์โหลด
+
     useEffect(() => {
         document.title = 'Register - DashboardOCR';
         
-        // หากมี access_token ใน localStorage ให้เปลี่ยนเส้นทางไปยังหน้าอื่น
+
         if (localStorage.getItem('access_token')) {
-            navigate('/'); // เปลี่ยนเส้นทางไปยังหน้าแรกหรือหน้าที่ป้องกัน
+            navigate('/');
         }
     }, [navigate]);
 
@@ -72,7 +72,7 @@ export default function Register() {
                 icon: 'success',
                 confirmButtonText: 'OK',
             }).then(() => {
-                navigate('/login'); // เปลี่ยนเส้นทางไปยังหน้าล็อกอิน
+                navigate('/login'); 
             });
         } catch (error: any) {
             const errorMessage = error.response?.data?.detail || 'Failed to register. Please try again.';

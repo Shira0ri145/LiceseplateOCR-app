@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom'; // Import useParams to get URL parameters
-import axios from 'axios'; // Import axios for making API requests
+import { useParams } from 'react-router-dom';
+import axios from 'axios'; 
+import { useNavigate } from 'react-router-dom';
 
 interface FileData {
   upload_url: string;
   obj_detect_url: string;
   upload_type: 'image' | 'video';
-  cropped_images: CroppedImage[]; // Add the cropped_images array
+  cropped_images: CroppedImage[]; 
 }
 
 interface CroppedImage {
@@ -21,26 +22,34 @@ interface CroppedImage {
 }
 
 export default function UploadHistory() {
-  const { id } = useParams<{ id: string }>(); // Get the ID from the URL parameters
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
 
   useEffect(() => {
     document.title = 'Home - DashboardOCR';
-    fetchUploadData(); // Call the fetch function
-  }, [id]); // Add id as a dependency to refetch if it changes
 
-  const [fileData, setFileData] = useState<FileData | null>(null); // Update the type here
+   
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      navigate('/login'); 
+    } else {
+      fetchUploadData(); 
+    }
+  }, [id]);
+
+  const [fileData, setFileData] = useState<FileData | null>(null); 
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedImage, setSelectedImage] = useState<string | null>(null); // State for selected image for popup
-  const [showPopup, setShowPopup] = useState(false); // State for popup visibility
+  const [selectedImage, setSelectedImage] = useState<string | null>(null); 
+  const [showPopup, setShowPopup] = useState(false);
 
   const fetchUploadData = async () => {
     if (id) {
       try {
         const response = await axios.get(`http://localhost:8000/api/vehicle/${id}`);
-        setFileData(response.data); // Axios will automatically parse the data
+        setFileData(response.data); 
       } catch (error) {
         console.error('Error fetching upload data:', error);
-        // Handle error here if needed
+        
       }
     }
   };

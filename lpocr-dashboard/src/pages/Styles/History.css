@@ -52,3 +52,11 @@
 .download-link:hover {
     text-decoration: underline;
 }
+
+.upload-thumbnail {
+    width: 100px; /* Set the desired width for thumbnails */
+    height: 100px; /* Set the same height to make it square */
+    object-fit: cover; /* Ensures the thumbnail fills the square area without distortion */
+    border-radius: 4px; /* Optional: Add border radius for rounded corners */
+}
+

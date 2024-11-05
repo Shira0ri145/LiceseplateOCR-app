@@ -1,7 +1,15 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import kilmerVideo from '../assets/vdo/kilmer.mp4'; // Import the default video file
-import { useNavigate } from 'react-router-dom'; // Import useNavigate for redirecting
+import { useNavigate } from 'react-router-dom';
+
+// Define the CroppedImage interface
+interface CroppedImage {
+  id: string;
+  crop_class_name: string;
+  license_plate: string | null;
+  crop_timestamp: string | null;
+  crop_image_url: string; // Include crop_image_url in the interface
+}
 
 export default function FilePredict() {
   useEffect(() => {
@@ -11,16 +19,13 @@ export default function FilePredict() {
   const [file, setFile] = useState<File | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const navigate = useNavigate(); // Initialize useNavigate
+  const [originalFileUrl, setOriginalFileUrl] = useState('');
+  const [predictFileUrl, setPredictFileUrl] = useState('');
+  const [uploadType, setUploadType] = useState('');
+  const [croppedImages, setCroppedImages] = useState<CroppedImage[]>([]);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null); // State for the pop-up image
+  const navigate = useNavigate();
 
-  const data = [
-    { type: 'Kilmer', plate: 'ABC123', date: '2023-06-15 14:30:00' },
-    { type: 'SUV', plate: 'XYZ789', date: '2023-06-15 15:45:00' },
-    { type: 'Truck', plate: 'DEF456', date: '2023-06-15 16:20:00' },
-    // Add more data as needed...
-  ];
-
-  // Function to handle file upload
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
     if (selectedFile) {
@@ -28,40 +33,16 @@ export default function FilePredict() {
     }
   };
 
-  // Function to toggle modal visibility
   const toggleModal = () => {
     setIsModalOpen(!isModalOpen);
   };
 
-  // Function to filter data based on search query
-  const filteredData = data.filter(item =>
-    item.plate.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const handleImageClick = (url: string) => {
+    setSelectedImage(url);
+  };
 
-  const renderPreview = () => {
-    if (!file) return null;
-
-    const fileURL = URL.createObjectURL(file);
-
-    if (file.type.startsWith('video/')) {
-      return (
-        <video className="mt-2" width="300" controls>
-          <source src={fileURL} type={file.type} />
-          Your browser does not support the video tag.
-        </video>
-      );
-    } else if (file.type.startsWith('image/')) {
-      return (
-        <img
-          src={fileURL}
-          alt="Uploaded preview"
-          className="mt-2"
-          width="300"
-        />
-      );
-    }
-
-    return <p>Unsupported file type.</p>;
+  const closeImageModal = () => {
+    setSelectedImage(null);
   };
 
   const uploadFile = async () => {
@@ -69,7 +50,7 @@ export default function FilePredict() {
 
     const accessToken = localStorage.getItem('access_token');
     if (!accessToken) {
-      navigate('/login'); // Redirect to login if token is not found
+      navigate('/login');
       return;
     }
 
@@ -80,10 +61,15 @@ export default function FilePredict() {
       const response = await axios.post('http://localhost:8000/api/vehicle/upload', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
-          Authorization: `Bearer ${accessToken}` // Include the access token here
+          Authorization: `Bearer ${accessToken}`,
         },
       });
-      console.log('File uploaded successfully:', response.data);
+
+      setOriginalFileUrl(response.data.upload_url);
+      setPredictFileUrl(response.data.detect_url);
+      setUploadType(response.data.upload_type);
+      setCroppedImages(response.data.cropped_images || []);
+
       toggleModal(); // Close modal after upload
     } catch (error) {
       console.error('Error uploading file:', error);
@@ -120,23 +106,17 @@ export default function FilePredict() {
             {file && (
               <div className="mt-4">
                 <h3 className="font-semibold">Preview:</h3>
-                {renderPreview()}
+                <img src={URL.createObjectURL(file)} alt="Uploaded preview" width="300" />
                 <p>File Name: {file.name}</p>
                 <p>Type: {file.type}</p>
                 <p>Size: {(file.size / 1024).toFixed(2)} KB</p>
               </div>
             )}
             <div className="flex justify-end mt-4">
-              <button
-                onClick={toggleModal}
-                className="bg-gray-200 px-3 py-1 rounded hover:bg-gray-300 mr-2"
-              >
+              <button onClick={toggleModal} className="bg-gray-200 px-3 py-1 rounded hover:bg-gray-300 mr-2">
                 Cancel
               </button>
-              <button
-                onClick={uploadFile} // Call the upload function here
-                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-              >
+              <button onClick={uploadFile} className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
                 Upload
               </button>
             </div>
@@ -149,24 +129,36 @@ export default function FilePredict() {
           <div className="bg-white shadow-md rounded-lg p-4">
             <h3 className="text-lg font-semibold">License Plate Data</h3>
             <div className="max-h-96 overflow-y-auto mt-4">
-              <table className="min-w-full">
-                <thead className="bg-gray-100 sticky top-0 z-10">
-                  <tr className="border-b">
-                    <th className="text-left py-2">Car Type</th>
-                    <th className="text-left py-2">License Plate</th>
-                    <th className="text-left py-2">Detect Time</th>
+            <table className="min-w-full">
+              <thead className="bg-gray-100 sticky top-0 z-10">
+                <tr className="border-b">
+                  <th className="text-center py-2">Detect</th>
+                  <th className="text-center py-2">Car Type</th>
+                  <th className="text-center py-2">License Plate</th>
+                  <th className="text-center py-2">Detect Time</th>
+                </tr>
+              </thead>
+              <tbody className="bg-gray-100">
+                {croppedImages.map((image) => (
+                  <tr key={image.id} className="border-b">
+                    <td className="py-2 text-center">
+                      <div className="flex justify-center">
+                        <img
+                          src={image.crop_image_url}
+                          alt="Cropped"
+                          className="w-16 h-16 cursor-pointer"
+                          onClick={() => handleImageClick(image.crop_image_url)}
+                        />
+                      </div>
+                    </td>
+                    <td className="py-2 text-center">{image.crop_class_name}</td>
+                    <td className="py-2 text-center">{image.license_plate || 'N/A'}</td>
+                    <td className="py-2 text-center">{image.crop_timestamp}</td>
                   </tr>
-                </thead>
-                <tbody>
-                  {filteredData.map((item, index) => (
-                    <tr key={index} className="border-b">
-                      <td className="py-2 text-center">{item.type}</td>
-                      <td className="py-2 text-center">{item.plate}</td>
-                      <td className="py-2 text-center">{item.date}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                ))}
+              </tbody>
+            </table>
+
             </div>
           </div>
         </div>
@@ -175,25 +167,34 @@ export default function FilePredict() {
           <div className="bg-white shadow-md rounded-lg p-4">
             <h3 className="text-lg font-semibold">Original file</h3>
             <div className="mt-4">
-              <div className="w-full flex items-center justify-center">
-                <video id="videoPlayer" width="100%" height="100%" controls>
-                  <source src={kilmerVideo} type="video/mp4" />
-                  Your browser does not support the video tag.
-                </video>
-              </div>
+              <img src={originalFileUrl} alt="Original file preview" />
             </div>
             <h3 className="text-lg mt-4 font-semibold">Predict</h3>
             <div className="mt-4">
-              <div className="w-full flex items-center justify-center">
-                <video id="videoPlayer" width="100%" height="100%" controls>
-                  <source src={kilmerVideo} type="video/mp4" />
-                  Your browser does not support the video tag.
-                </video>
-              </div>
+              <img src={predictFileUrl} alt="Predicted file preview" />
             </div>
           </div>
         </div>
       </div>
+
+      {selectedImage && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-20">
+          <div className="relative p-4 bg-white rounded-lg shadow-md max-w-sm">
+            <img
+              src={selectedImage}
+              alt="Large preview"
+              className="max-w-xs max-h-xs object-contain"
+            />
+            <button
+              onClick={closeImageModal}
+              className="absolute top-2 right-2 bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

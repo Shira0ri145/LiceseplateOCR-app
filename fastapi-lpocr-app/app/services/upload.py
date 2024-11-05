@@ -153,7 +153,8 @@ class UploadFileService:
 
         return {
             "message": "File uploaded successfully", 
-            "filename": db_file.upload_name, 
+            "filename": db_file.upload_name,
+            "upload_type": upload_type, 
             "upload_url": db_file.upload_url, 
             "detect_url": obj_detect_url["predict_url"],
             "cropped_images": response_data  # Include the cropped images data in the response

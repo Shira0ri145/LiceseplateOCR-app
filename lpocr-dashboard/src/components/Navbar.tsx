@@ -49,12 +49,12 @@ export default function Navbar({ toggleSidebar }: NavbarProps) {
         // Show success message
         Swal.fire({
           title: 'Logged Out!',
-          text: response.data.message, // Use message from API
+          text: response.data.message, 
           icon: 'success',
           confirmButtonText: 'OK',
         }).then(() => {
-          localStorage.removeItem('access_token'); // Clear token
-          window.location.href = '/'; // Redirect to login page
+          localStorage.removeItem('access_token'); 
+          window.location.href = '/'; 
         });
       } catch (error) {
         Swal.fire({
@@ -67,7 +67,6 @@ export default function Navbar({ toggleSidebar }: NavbarProps) {
     }
   };
 
-  // Check if the user is logged in by checking if the token exists
   const isLoggedIn = !!localStorage.getItem('access_token');
 
   return (
@@ -83,14 +82,14 @@ export default function Navbar({ toggleSidebar }: NavbarProps) {
           <Menu className="w-6 h-6" />
         </button>
 
-        {/* OCR Dashboard Title */}
+    
         <h2 className="text-2xl font-semibold mr-8">OCR Dashboard</h2>
 
         
       </div>
       
       <div className="flex items-center space-x-4">
-        {/* Conditionally render Sign In or Logout button */}
+    
         {isLoggedIn ? (
           <button onClick={handleLogout}>
             <LogOut className="w-6 h-6 text-gray-600 cursor-pointer hover:text-gray-900" />

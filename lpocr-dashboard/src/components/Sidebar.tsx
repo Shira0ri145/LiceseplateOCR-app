@@ -6,10 +6,10 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ isSidebarOpen }: SidebarProps) {
-  // ตรวจสอบสถานะการล็อกอิน
+
   const isLoggedIn = !!localStorage.getItem('access_token');
 
-  // กำหนดรายการ Sidebar ที่แตกต่างกันไปตามสถานะการล็อกอิน
+
   const sidebarItems = [
     { icon: BarChart, label: 'Predict Camera', path: '/' },
     { icon: CarFront, label: 'Predict File', path: '/file-predict' },
@@ -18,7 +18,7 @@ export default function Sidebar({ isSidebarOpen }: SidebarProps) {
           { icon: FileText, label: 'Upload History', path: '/history' },
           { icon: Users, label: 'Profile', path: '/profile' },
         ]
-      : []), // ไม่แสดงเมื่อไม่ได้ล็อกอิน
+      : []),
   ];
 
   return (

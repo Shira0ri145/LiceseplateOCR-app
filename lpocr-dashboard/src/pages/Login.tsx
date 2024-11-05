@@ -8,13 +8,13 @@ import { Link, useNavigate } from 'react-router-dom';
 export default function Login() {
     const navigate = useNavigate();
 
-    // ตรวจสอบการล็อกอินเมื่อคอมโพเนนต์โหลด
+
     useEffect(() => {
         document.title = 'Login - DashboardOCR';
         
-        // หากมี access_token ใน localStorage ให้เปลี่ยนเส้นทางไปยังหน้าอื่น
+   
         if (localStorage.getItem('access_token')) {
-            navigate('/'); // เปลี่ยนเส้นทางไปยังหน้าแรกหรือหน้าที่ป้องกัน
+            navigate('/');
         }
     }, [navigate]);
     
@@ -35,19 +35,19 @@ export default function Login() {
                 password,
             });
     
-            const { access_token, message } = response.data; // ดึง access_token และ message
+            const { access_token, message } = response.data;
     
-            // Store access_token in localStorage
+
             localStorage.setItem('access_token', access_token);
     
-            // แสดงข้อความสำเร็จโดยใช้ message จาก API
+         
             Swal.fire({
                 title: 'Success!',
-                text: message, // ใช้ค่าจาก API
+                text: message, 
                 icon: 'success',
                 confirmButtonText: 'OK',
             }).then(() => {
-                navigate('/'); // Navigate to homepage or any protected route
+                navigate('/'); 
             });
         } catch (error: any) {
             const errorMessage = error.response?.data?.detail || 'Failed to login. Please try again.';

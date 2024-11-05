@@ -71,11 +71,11 @@ const History = () => {
                             <span>{upload.upload_type}</span>
                             <span>{new Date(upload.created_at).toLocaleString()}</span>
                             
-                            {/* Display video or image */}
+                            {/* Display video or image with square styling */}
                             {upload.upload_type === "video" ? (
-                                <video controls width="200" src={upload.upload_url} />
+                                <video controls className="upload-thumbnail" src={upload.upload_url} />
                             ) : (
-                                <img src={upload.upload_url} alt={upload.upload_name} style={{ width: '200px', height: 'auto' }} />
+                                <img src={upload.upload_url} alt={upload.upload_name} className="upload-thumbnail" />
                             )}
                         </div>
                     </Link>
