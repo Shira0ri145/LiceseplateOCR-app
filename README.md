@@ -9,7 +9,7 @@ Make sure you have the following installed:
 - Python 3.12+
 - Git
 
-## Getting Started
+## Getting Started for backend
 
 ### 1. Clone the repository
 
@@ -18,8 +18,9 @@ git clone https://github.com/your-username/fastapi-lpocr-app.git
 cd fastapi-lpocr-app
 ```
 
-### 2. Set up the environment variables
+### 2. Set up the environment variables 
 ```bash
+#for secret
 import secrets
 secrets.token_hex(20)
 ```
@@ -45,11 +46,11 @@ REDIS_PORT=
 REDIS_URL=
 
 # JWT Secret Key
-JWT_SECRET=
+JWT_SECRET={secret}
 JWT_ALGORITHM=
 
 # App Secret Key
-SECRET_KEY=
+SECRET_KEY={secret}
 ```
 
 ### 3. Build and Run with Docker Compose
@@ -70,8 +71,27 @@ source .venv/bin/activate
 # install lib in requirement
 pip install -r requirements.txt
 ```
+### 5. add ocr folder to path app/routes
 
-### 5. run project
+
+### 6. run project
 ```bash
 fastapi dev
+```
+
+### warning
+please install pytorch cuda before run don't use cpu
+- uninstall to torchvision first and
+- install nvidia cudnn
+- install pytorch cuda https://pytorch.org/get-started/locally/
+
+
+```bash
+ #plz del  ``` ``` after create db in postgresql and ``` ``` it again for create table in db and role
+ # cuz i forgot install alembic for migration haha sorry
+'''
+@app.on_event("startup")
+async def startup_event():
+    await init_db()
+'''
 ```
